@@ -422,9 +422,9 @@ class SequenceGenerator(nn.Module):
                 lprobs = self.repeat_ngram_blocker(tokens, lprobs, bsz, beam_size, step)
             
             ######################### UID Regularizer Update######################
-            #if self.regularizer == "greedy":
-                #cur_max = torch.max(lprobs, dim = 2, keepdim = True)[0]
-                #scores -= self.lamda * (scores - cur_max) ** 2
+            if self.regularizer == "greedy":
+                cur_max = torch.max(lprobs, dim = 2, keepdim = True)[0]
+                lprobs -= self.lamda * (scores - cur_max) ** 2
                 #pass
 
             #elif self.regularizer == "max":
