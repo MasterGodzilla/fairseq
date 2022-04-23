@@ -419,7 +419,7 @@ class SequenceGenerator(nn.Module):
                 self.search.set_src_lengths(src_lengths)
 
             if self.repeat_ngram_blocker is not None:
-                lprobs = self.repeat_ngram_blocker(tokens, lprobs, bsz, beam_size, step
+                lprobs = self.repeat_ngram_blocker(tokens, lprobs, bsz, beam_size, step)
             
             ######################### UID Regularizer Update######################
             #if self.regularizer == "greedy":
