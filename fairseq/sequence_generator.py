@@ -423,8 +423,9 @@ class SequenceGenerator(nn.Module):
             
             ######################### UID Regularizer Update######################
             if self.regularizer == "greedy":
-                cur_max = torch.max(lprobs, dim = 2, keepdim = True)[0]
-                scores -= self.lamda * (scores - cur_max) ** 2
+                #cur_max = torch.max(lprobs, dim = 2, keepdim = True)[0]
+                #scores -= self.lamda * (scores - cur_max) ** 2
+                pass
 
             elif self.regularizer == "max":
                 pass
