@@ -37,6 +37,8 @@ class SequenceGenerator(nn.Module):
         symbols_to_strip_from_output=None,
         lm_model=None,
         lm_weight=1.0,
+        regularizer = "greedy",
+        lamda = 2.0, 
     ):
         """Generates translations of a given source sentence.
 
@@ -62,6 +64,23 @@ class SequenceGenerator(nn.Module):
             match_source_len (bool, optional): outputs should match the source
                 length (default: False)
         """
+
+        ############################ Added argument #####################
+        """
+        Added argumnets for UID Regularizers
+            regularizer (str, optional): type of regularizer
+                "variance"
+                "max"
+                "local_variance"
+                "greedy"
+                "square"
+                "length_norm"
+            lamda (float, optional): the constant before regularizer
+            
+        """
+        ###################################################################
+
+
         super().__init__()
         if isinstance(models, EnsembleModel):
             self.model = models
@@ -115,6 +134,11 @@ class SequenceGenerator(nn.Module):
         self.lm_weight = lm_weight
         if self.lm_model is not None:
             self.lm_model.eval()
+        
+        #################### Added argument ########################
+        self.regularizer = regularizer
+        self.lamda = lamda
+        ########################################################
 
     def cuda(self):
         self.model.cuda()
@@ -395,7 +419,19 @@ class SequenceGenerator(nn.Module):
                 self.search.set_src_lengths(src_lengths)
 
             if self.repeat_ngram_blocker is not None:
-                lprobs = self.repeat_ngram_blocker(tokens, lprobs, bsz, beam_size, step)
+                lprobs = self.repeat_ngram_blocker(tokens, lprobs, bsz, beam_size, step
+            
+            ######################### UID Regularizer Update######################
+            if self.regularizer == "greedy":
+                cur_max = torch.max(lprobs, dim = 2, keepdim = True)[0]
+                scores -= self.lamda * (scores - cur_max) ** 2
+
+            elif self.regularizer == "max":
+                pass
+                
+            
+            #####################################################################
+
 
             # Shape: (batch, cand_size)
             cand_scores, cand_indices, cand_beams = self.search.step(
