@@ -37,7 +37,7 @@ class SequenceGenerator(nn.Module):
         symbols_to_strip_from_output=None,
         lm_model=None,
         lm_weight=1.0,
-        regularizer = "greedy",
+        regularizer = "square",
         lamda = 2.0, 
     ):
         """Generates translations of a given source sentence.
@@ -428,7 +428,9 @@ class SequenceGenerator(nn.Module):
                 cur_max = torch.max(lprobs, dim = 1, keepdim = True)[0]
                 lprobs -= self.lamda * (lprobs - cur_max) ** 2
                 #pass
-
+            
+            elif self.regularizer == "square":
+                lprobs -= self.lamda * ((lprobs) ** 2)
             #elif self.regularizer == "max":
                 #pass
                 
