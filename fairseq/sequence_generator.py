@@ -426,7 +426,7 @@ class SequenceGenerator(nn.Module):
                 #print ("vocab size:", self.vocab_size, "beam size:", beam_size, "bsz:", bsz)
                 #print ("lprobs size", lprobs.size())
                 cur_max = torch.max(lprobs, dim = 1, keepdim = True)[0]
-                lprobs -= self.lamda * (scores - cur_max) ** 2
+                lprobs -= self.lamda * (lprobs - cur_max) ** 2
                 #pass
 
             #elif self.regularizer == "max":
