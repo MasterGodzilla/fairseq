@@ -37,8 +37,9 @@ class SequenceGenerator(nn.Module):
         symbols_to_strip_from_output=None,
         lm_model=None,
         lm_weight=1.0,
-        regularizer = "greedy",
+        regularizer = None,
         lamda = 2.0, 
+        noise = 0, 
     ):
         """Generates translations of a given source sentence.
 
@@ -76,6 +77,8 @@ class SequenceGenerator(nn.Module):
                 "square"
                 "length_norm"
             lamda (float, optional): the constant before regularizer
+            noise (float, optional): the noise added to log probability when 
+                using beam search
             
         """
         ###################################################################
@@ -138,6 +141,7 @@ class SequenceGenerator(nn.Module):
         #################### Added argument ########################
         self.regularizer = regularizer
         self.lamda = lamda
+        self.noise = noise
         ########################################################
 
     def cuda(self):
