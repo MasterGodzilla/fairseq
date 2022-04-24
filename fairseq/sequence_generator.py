@@ -37,7 +37,7 @@ class SequenceGenerator(nn.Module):
         symbols_to_strip_from_output=None,
         lm_model=None,
         lm_weight=1.0,
-        regularizer = "square",
+        regularizer = "greedy",
         lamda = 2.0, 
     ):
         """Generates translations of a given source sentence.
