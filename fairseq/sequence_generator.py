@@ -42,6 +42,7 @@ class SequenceGenerator(nn.Module):
         noise = 0, 
         decay_rate = 0.0, 
         inv_decay = False, 
+        only_first_step = False,
     ):
         """Generates translations of a given source sentence.
 
@@ -83,6 +84,7 @@ class SequenceGenerator(nn.Module):
                 using beam search
             decay_rate (float, optional): lamda_step = decay_rate ** step * lamda0
             inv_decay (boolean, optional): lamda_step = lamda0 / (step+1)
+            only_first_step(boolean, optional): set lamda = 0 after first step
             
         """
         ###################################################################
@@ -146,6 +148,9 @@ class SequenceGenerator(nn.Module):
         self.regularizer = regularizer
         self.lamda = lamda
         self.noise = noise
+        self.decay_rate = decay_rate
+        self.inv_decay = inv_decay
+        self.only_first_step = only_first_step
         ########################################################
 
     def cuda(self):
@@ -442,10 +447,12 @@ class SequenceGenerator(nn.Module):
             #elif self.regularizer == "max":
                 #pass
             
-            if decay_rate: 
-                lamda *= decay_rate
-            elif inv_decay: 
-                lamda *= (step+1)/(step+2)
+            if self.decay_rate: 
+                self.lamda *= self.decay_rate
+            elif self.inv_decay: 
+                self.lamda *= (step+1)/(step+2)
+            elif self.only_first_step:
+                self.lamda = 0
             
             #####################################################################
 
