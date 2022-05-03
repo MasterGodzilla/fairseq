@@ -40,6 +40,8 @@ class SequenceGenerator(nn.Module):
         regularizer = None,
         lamda = 2.0, 
         noise = 0, 
+        decay_rate = 0.0, 
+        inv_decay = False, 
     ):
         """Generates translations of a given source sentence.
 
@@ -79,6 +81,8 @@ class SequenceGenerator(nn.Module):
             lamda (float, optional): the constant before regularizer
             noise (float, optional): the noise added to log probability when 
                 using beam search
+            decay_rate (float, optional): lamda_step = decay_rate ** step * lamda0
+            inv_decay (boolean, optional): lamda_step = lamda0 / (step+1)
             
         """
         ###################################################################
@@ -437,7 +441,11 @@ class SequenceGenerator(nn.Module):
                 lprobs -= self.lamda * ((lprobs) ** 2)
             #elif self.regularizer == "max":
                 #pass
-                
+            
+            if decay_rate: 
+                lamda *= decay_rate
+            elif inv_decay: 
+                lamda *= (step+1)/(step+2)
             
             #####################################################################
 
