@@ -40,9 +40,9 @@ class SequenceGenerator(nn.Module):
         regularizer = "greedy",
         lamda = 2.0, 
         noise = 0, 
-        decay_rate = 0.5, 
+        decay_rate = 0, 
         inv_decay = False, 
-        first_step_penalty = False,
+        first_token_penalty = True,
     ):
         """Generates translations of a given source sentence.
 
@@ -84,7 +84,7 @@ class SequenceGenerator(nn.Module):
                 using beam search
             decay_rate (float, optional): lamda_step = decay_rate ** step * lamda0
             inv_decay (boolean, optional): lamda_step = lamda0 / (step+1)
-            first_step_penalty (boolean, optional): set lamda = 0 after first step
+            first_token_penalty (boolean, optional): set lamda = 0 after first step
             
         """
         ###################################################################
@@ -151,7 +151,7 @@ class SequenceGenerator(nn.Module):
         self.noise = noise
         self.decay_rate = decay_rate
         self.inv_decay = inv_decay
-        self.first_step_penalty = first_step_penalty
+        self.first_token_penalty = first_token_penalty
         ########################################################
 
     def cuda(self):
@@ -455,7 +455,7 @@ class SequenceGenerator(nn.Module):
                 self.lamda *= self.decay_rate
             elif self.inv_decay: 
                 self.lamda = self.lamda0 / (step+2)
-            elif self.first_step_penalty:
+            elif self.first_token_penalty:
                 self.lamda = 0
             
             #####################################################################
