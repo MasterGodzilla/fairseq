@@ -458,6 +458,8 @@ class SequenceGenerator(nn.Module):
             elif self.first_step_penalty:
                 self.lamda = 0
             
+            print ("step: ", step)
+            
             #####################################################################
 
 
