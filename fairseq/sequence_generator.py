@@ -37,12 +37,12 @@ class SequenceGenerator(nn.Module):
         symbols_to_strip_from_output=None,
         lm_model=None,
         lm_weight=1.0,
-        regularizer = None,
+        regularizer = "greedy",
         lamda = 2.0, 
         noise = 0, 
-        decay_rate = 0.0, 
+        decay_rate = 0.5, 
         inv_decay = False, 
-        only_first_step = False,
+        first_step_penalty = False,
     ):
         """Generates translations of a given source sentence.
 
@@ -84,7 +84,7 @@ class SequenceGenerator(nn.Module):
                 using beam search
             decay_rate (float, optional): lamda_step = decay_rate ** step * lamda0
             inv_decay (boolean, optional): lamda_step = lamda0 / (step+1)
-            only_first_step(boolean, optional): set lamda = 0 after first step
+            first_step_penalty (boolean, optional): set lamda = 0 after first step
             
         """
         ###################################################################
@@ -147,10 +147,11 @@ class SequenceGenerator(nn.Module):
         #################### Added argument ########################
         self.regularizer = regularizer
         self.lamda = lamda
+        self.lamda0 = lamda
         self.noise = noise
         self.decay_rate = decay_rate
         self.inv_decay = inv_decay
-        self.only_first_step = only_first_step
+        self.first_step_penalty = first_step_penalty
         ########################################################
 
     def cuda(self):
@@ -355,6 +356,9 @@ class SequenceGenerator(nn.Module):
         else:
             original_batch_idxs = torch.arange(0, bsz).type_as(tokens)
 
+        ###################################################
+        self.lamda = self.lamda0
+        ##################################################
         for step in range(max_len + 1):  # one extra step for EOS marker
             # reorder decoder internal states based on the prev choice of beams
             if reorder_state is not None:
@@ -450,8 +454,8 @@ class SequenceGenerator(nn.Module):
             if self.decay_rate: 
                 self.lamda *= self.decay_rate
             elif self.inv_decay: 
-                self.lamda *= (step+1)/(step+2)
-            elif self.only_first_step:
+                self.lamda = self.lamda0 / (step+2)
+            elif self.first_step_penalty:
                 self.lamda = 0
             
             #####################################################################
