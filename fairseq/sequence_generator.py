@@ -456,7 +456,8 @@ class SequenceGenerator(nn.Module):
             elif self.inv_decay: 
                 self.lamda = self.lamda0 / (step+2)
             elif self.first_token_penalty:
-                self.lamda = 0
+                self.lamda = 0.0000001
+                
             
             #####################################################################
 
