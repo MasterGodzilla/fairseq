@@ -46,6 +46,7 @@ class SequenceGenerator(nn.Module):
         first_token_penalty = False,
         debiasing = True,
         epsilon = 0.1,
+        debiasing_constant = 10,
     ):
         """Generates translations of a given source sentence.
 
@@ -162,7 +163,8 @@ class SequenceGenerator(nn.Module):
         self.first_token_penalty = first_token_penalty
         self.debiasing = debiasing
         self.epsilon = epsilon
-        self.bias_threshold = math.log(self.epsilon / (self.vocab_size - 1))
+        self.delta = self.epsilon * debiasing_constant
+        self.bias_threshold = math.log( self.delta / (self.vocab_size - 1))
         ########################################################
 
     def cuda(self):
@@ -456,7 +458,7 @@ class SequenceGenerator(nn.Module):
                 lprobs[lprobs <= self.bias_threshold] = -math.inf
                 lprobs[lprobs > self.bias_threshold] = torch.log((
                     torch.exp(lprobs[lprobs > self.bias_threshold])
-                     - self.epsilon / self.vocab_size) / (1 - self.epsilon))
+                     - self.delta / self.vocab_size) / (1 - self.epsilon))
                 #print (torch.min(torch.logical_not(torch.isinf(lprobs))))
 
 
