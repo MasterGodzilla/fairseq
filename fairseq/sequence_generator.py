@@ -451,13 +451,13 @@ class SequenceGenerator(nn.Module):
             
             ######################### UID Regularizer Update######################
             if self.debiasing:
-                print (lprobs.size())
-                print (lprobs[lprobs <= self.bias_threshold].size())
+                #print (lprobs.size())
+                #print (lprobs[lprobs <= self.bias_threshold].size())
                 lprobs[lprobs <= self.bias_threshold] = -math.inf
                 lprobs[lprobs > self.bias_threshold] = torch.log((
                     torch.exp(lprobs[lprobs > self.bias_threshold])
                      - self.epsilon / self.vocab_size) / (1 - self.epsilon))
-                print (torch.min(torch.logical_not(torch.isinf(lprobs))))
+                #print (torch.min(torch.logical_not(torch.isinf(lprobs))))
 
 
             if self.regularizer == "greedy":
