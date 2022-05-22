@@ -450,8 +450,9 @@ class SequenceGenerator(nn.Module):
             ######################### UID Regularizer Update######################
             if self.debiasing:
                 lprobs[lprobs <= self.epsilon / (self.vocab_size - 1)] = - math.inf
-                lprobs[lprobs > self.epsilon / (self.vocab_size - 1)] = (
-                    lprobs - self.epsilon / self.vocab_size) / (1 - self.epsilon)
+                lprobs[lprobs > self.epsilon / (self.vocab_size - 1)] = torch.log(
+                    torch.exp(lprobs[lprobs > self.epsilon / (self.vocab_size - 1)])
+                     - self.epsilon / self.vocab_size) / (1 - self.epsilon)
 
 
             if self.regularizer == "greedy":
