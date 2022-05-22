@@ -37,12 +37,14 @@ class SequenceGenerator(nn.Module):
         symbols_to_strip_from_output=None,
         lm_model=None,
         lm_weight=1.0,
-        regularizer = "greedy",
+        regularizer = None,
         lamda = 2.0, 
         noise = 0, 
         decay_rate = 0, 
         inv_decay = False, 
-        first_token_penalty = True,
+        first_token_penalty = False,
+        debiasing = False,
+        epsilon = 0.1,
     ):
         """Generates translations of a given source sentence.
 
@@ -72,6 +74,11 @@ class SequenceGenerator(nn.Module):
         ############################ Added argument #####################
         """
         Added argumnets for UID Regularizers
+            debiasing (bool, optional): 
+                if to debias: p_db = (p - epsilon/V)/(1-epsilon)
+                log(p_db) = (e**(lprob) - epsilon/V))/(1-epsilon)
+                    However, might have e**lprob < epsilon/V
+                    Use an upperbound on e**lprob
             regularizer (str, optional): type of regularizer
                 "variance"
                 "max"
@@ -152,6 +159,8 @@ class SequenceGenerator(nn.Module):
         self.decay_rate = decay_rate
         self.inv_decay = inv_decay
         self.first_token_penalty = first_token_penalty
+        self.debiasing = debiasing
+        self.epsilon = epsilon
         ########################################################
 
     def cuda(self):
@@ -439,17 +448,18 @@ class SequenceGenerator(nn.Module):
                 lprobs = self.repeat_ngram_blocker(tokens, lprobs, bsz, beam_size, step)
             
             ######################### UID Regularizer Update######################
+            if self.debiasing:
+                lprobs[lprobs <= self.epsilon / (self.vocab_size - 1)] = - math.inf
+                lprobs[lprobs > self. epsilon / (self.vocab_size - 1)] = (
+                    lprobs - self.epsilon / self.vocab_size) / (1 - self.epsilon)
+
+
             if self.regularizer == "greedy":
-                #print ("vocab size:", self.vocab_size, "beam size:", beam_size, "bsz:", bsz)
-                #print ("lprobs size", lprobs.size())
                 cur_max = torch.max(lprobs, dim = 1, keepdim = True)[0]
                 lprobs -= self.lamda * (lprobs - cur_max) ** 2
-                #pass
             
             elif self.regularizer == "square":
                 lprobs -= self.lamda * ((lprobs) ** 2)
-            #elif self.regularizer == "max":
-                #pass
             
             if self.decay_rate: 
                 self.lamda *= self.decay_rate
