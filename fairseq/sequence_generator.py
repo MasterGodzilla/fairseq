@@ -3,6 +3,7 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
+from cmath import isinf
 import math
 from typing import Dict, List, Optional
 import sys
@@ -455,6 +456,7 @@ class SequenceGenerator(nn.Module):
                 lprobs[lprobs > self.epsilon / (self.vocab_size - 1)] = torch.log((
                     torch.exp(lprobs[lprobs > self.epsilon / (self.vocab_size - 1)])
                      - self.epsilon / self.vocab_size) / (1 - self.epsilon))
+                print (torch.min(torch.logical_not(torch.isinf(lprobs))))
 
 
             if self.regularizer == "greedy":
