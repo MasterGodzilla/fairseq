@@ -43,7 +43,7 @@ class SequenceGenerator(nn.Module):
         decay_rate = 0, 
         inv_decay = False, 
         first_token_penalty = False,
-        debiasing = False,
+        debiasing = True,
         epsilon = 0.1,
     ):
         """Generates translations of a given source sentence.
@@ -450,7 +450,7 @@ class SequenceGenerator(nn.Module):
             ######################### UID Regularizer Update######################
             if self.debiasing:
                 lprobs[lprobs <= self.epsilon / (self.vocab_size - 1)] = - math.inf
-                lprobs[lprobs > self. epsilon / (self.vocab_size - 1)] = (
+                lprobs[lprobs > self.epsilon / (self.vocab_size - 1)] = (
                     lprobs - self.epsilon / self.vocab_size) / (1 - self.epsilon)
 
 
