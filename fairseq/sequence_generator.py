@@ -42,8 +42,8 @@ class SequenceGenerator(nn.Module):
         noise = 0, 
         decay_rate = 0, 
         inv_decay = False, 
-        first_token_penalty = True,
-        debiasing = False,
+        first_token_penalty = False,
+        debiasing = True,
         epsilon = 0.1,
     ):
         """Generates translations of a given source sentence.
@@ -449,6 +449,8 @@ class SequenceGenerator(nn.Module):
             
             ######################### UID Regularizer Update######################
             if self.debiasing:
+                print (lprobs.size)
+                print (lprobs[lprobs <= self.epsilon / (self.vocab_size - 1)].size)
                 lprobs[lprobs <= self.epsilon / (self.vocab_size - 1)] = -math.inf
                 lprobs[lprobs > self.epsilon / (self.vocab_size - 1)] = torch.log((
                     torch.exp(lprobs[lprobs > self.epsilon / (self.vocab_size - 1)])
