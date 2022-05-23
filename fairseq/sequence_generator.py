@@ -45,8 +45,8 @@ class SequenceGenerator(nn.Module):
         inv_decay = False, 
         first_token_penalty = False,
         debiasing = True,
-        epsilon = 0.1,
-        debiasing_constant = 10,
+        epsilon = 0.2, #default is 0.1
+        debiasing_constant = 1,
     ):
         """Generates translations of a given source sentence.
 
@@ -81,6 +81,8 @@ class SequenceGenerator(nn.Module):
                 log(p_db) = (e**(lprob) - epsilon/V))/(1-epsilon)
                     However, might have e**lprob < epsilon/V
                     Use an upperbound on e**lprob
+            epsilon (float, optional): the label-smoothing constant is 0.1
+            debiasing_constant: magnifying epsilon
             regularizer (str, optional): type of regularizer
                 "variance"
                 "max"
