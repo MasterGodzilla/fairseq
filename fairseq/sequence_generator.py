@@ -44,8 +44,8 @@ class SequenceGenerator(nn.Module):
         decay_rate = 0, 
         inv_decay = False, 
         first_token_penalty = False,
-        debiasing = True,
-        epsilon = 0.2, #default is 0.1
+        debiasing = False,
+        epsilon = 0.1, #default is 0.1
         debiasing_constant = 1,
     ):
         """Generates translations of a given source sentence.
