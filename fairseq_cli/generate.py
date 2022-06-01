@@ -23,6 +23,7 @@ from fairseq import checkpoint_utils, options, scoring, tasks, utils
 from fairseq.dataclass.utils import convert_namespace_to_omegaconf
 from fairseq.logging import progress_bar
 from fairseq.logging.meters import StopwatchMeter, TimeMeter
+import fairseq.MBR 
 
 
 def main(cfg: DictConfig):
@@ -207,10 +208,13 @@ def _main(cfg: DictConfig, output_file):
         )
         num_generated_tokens = sum(len(h[0]["tokens"]) for h in hypos)
         gen_timer.stop(num_generated_tokens)
+
+        #######################################
         UseMBR = True
         if UseMBR: 
             print ("MBR is true")
-            hypos = MBR.MinimumBayesRisk(hypos)
+            hypos = MBR.min_bayes_risk(hypos)
+        #####################################
         for i, sample_id in enumerate(sample["id"].tolist()):
             has_target = sample["target"] is not None
 
