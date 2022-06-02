@@ -23,7 +23,9 @@ from fairseq import checkpoint_utils, options, scoring, tasks, utils
 from fairseq.dataclass.utils import convert_namespace_to_omegaconf
 from fairseq.logging import progress_bar
 from fairseq.logging.meters import StopwatchMeter, TimeMeter
-import fairseq.MBR 
+
+#Added Code
+from fairseq import MBR
 
 
 def main(cfg: DictConfig):
