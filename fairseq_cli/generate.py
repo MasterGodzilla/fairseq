@@ -25,7 +25,7 @@ from fairseq.logging import progress_bar
 from fairseq.logging.meters import StopwatchMeter, TimeMeter
 
 #Added Code
-from fairseq.MBR import min_bayes_risk
+from fairseq.MBR.MBR import min_bayes_risk
 
 
 def main(cfg: DictConfig):
