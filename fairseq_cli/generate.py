@@ -25,7 +25,7 @@ from fairseq.logging import progress_bar
 from fairseq.logging.meters import StopwatchMeter, TimeMeter
 
 #Added Code
-from fairseq import MBR
+from fairseq.MBR import min_bayes_risk
 
 
 def main(cfg: DictConfig):
@@ -215,7 +215,7 @@ def _main(cfg: DictConfig, output_file):
         UseMBR = True
         if UseMBR: 
             print ("MBR is true")
-            hypos = MBR.min_bayes_risk(hypos)
+            hypos = min_bayes_risk(hypos)
         #####################################
         for i, sample_id in enumerate(sample["id"].tolist()):
             has_target = sample["target"] is not None
