@@ -37,7 +37,7 @@ def min_bayes_risk(hypos, sample_size, utility="BLEU"):
         e_utility = [0.0 for _ in range(sample_size)]
         for j in range(sample_size):
             for k in range(sample_size):
-                e_utility[j] += (sacrebleu.corpus_bleu(hypos[i][j]["tokens"], hypos[i][k]["tokens"], tokenize = "none") 
+                e_utility[j] += (sacrebleu.corpus_bleu(hypos[i][j]["tokens"], [hypos[i][k]["tokens"]], tokenize = "none") 
                 * torch.exp(hypos[i][k]["score"]))
             
         for j in range(sample_size):
