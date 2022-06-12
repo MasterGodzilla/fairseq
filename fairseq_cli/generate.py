@@ -25,7 +25,7 @@ from fairseq.logging import progress_bar
 from fairseq.logging.meters import StopwatchMeter, TimeMeter
 
 #Added Code
-from fairseq.MBR.MBR import min_bayes_risk
+from fairseq.MBR.MBR import min_bayes_risk1
 
 
 def main(cfg: DictConfig):
@@ -211,12 +211,7 @@ def _main(cfg: DictConfig, output_file):
         num_generated_tokens = sum(len(h[0]["tokens"]) for h in hypos)
         gen_timer.stop(num_generated_tokens)
 
-        #######################################
-        UseMBR = True
-        if UseMBR: 
-            print ("MBR is true")
-            hypos = min_bayes_risk(hypos, cfg.generation.beam)
-        #####################################
+        
         for i, sample_id in enumerate(sample["id"].tolist()):
             has_target = sample["target"] is not None
 
@@ -279,6 +274,11 @@ def _main(cfg: DictConfig, output_file):
                     extra_symbols_to_ignore=get_symbols_to_strip_from_output(generator),
                 )
                 detok_hypo_str = decode_fn(hypo_str)
+                #######################################
+                UseMBR = True
+                if UseMBR: 
+                    hypo = min_bayes_risk1(hypo, hypo_tokens, hypo_str, detok_hypo_str, alignment, cfg.generation.beam)
+                #####################################
                 if not cfg.common_eval.quiet:
                     score = hypo["score"] / math.log(2)  # convert to base 2
                     # original hypothesis (after tokenization and BPE)

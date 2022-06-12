@@ -3,6 +3,43 @@ import sacrebleu
 import torch
 
 
+def min_bayes_risk1(hypo, hypo_tokens, hypo_str, detok_hypo_str, sample_size, utility="BLEU"):
+    """
+    This function changes the score of the input hypos to the expected utility function, 
+    so the outside ranking function can arrange it accordingly. See
+
+        Sampling-Based Minimum Bayes Risk Decoding for Neural Machine Translation
+        https://arxiv.org/pdf/2108.04718.pdf
+    
+    Args:
+        hypos (list(size batch_size) of list (size beam_size) of Dict with attributes
+            "tokens": torch.Tensor with len sentence_length and dtype int (token id)
+            "score": torch.Tensor of size 1 float
+            "attention": empty torch.Tensor
+            "alignment":
+            "positional_scores": torch.Tensor() len sentence_length dtype float)
+        
+        sample_size (int): the size of sample/cfg.beam_size
+        utility (str, optional): choices of 
+            "BLEU"
+            "BEER"
+            "METEOR"
+            "ChrF"
+    
+    return:
+        hypos with score as the expected utility
+    """
+    #print (type(hypos))
+    #print ("hypos.size()",hypos.size())
+    #print ("hypos[0]", hypos[0])
+
+    print ("hypo:", hypo)
+    print ("hypo_tokens", hypo_tokens)
+    print ("hypo_str", hypo_str)
+    print ("detok_hypo_str", detok_hypo_str)
+    
+    return False
+
 def min_bayes_risk(hypos, sample_size, utility="BLEU"):
     """
     This function changes the score of the input hypos to the expected utility function, 
