@@ -283,7 +283,7 @@ def _main(cfg: DictConfig, output_file):
             #######################################
             UseMBR = True
             if UseMBR: 
-                hypo = min_bayes_risk1(hypos[i],cfg.generation.beam)
+                hypos[i] = min_bayes_risk1(hypos[i],cfg.generation.beam)
             #####################################
             for j, hypo in enumerate(hypos[i][: cfg.generation.nbest]):
                 if not cfg.common_eval.quiet:
@@ -291,7 +291,7 @@ def _main(cfg: DictConfig, output_file):
                     # original hypothesis (after tokenization and BPE)
                     print(
                         #"H-{}\t{}\t{}".format(sample_id, score, hypo_str),
-                        "H-{}\t{}\t{}".format(sample_id, score, hypo["str"]),
+                        "H-{}\t{}\t{}\t{}".format(sample_id, hypo["expected_utility"],score, hypo["str"]),
                         file=output_file,
                     )
                     # detokenized hypothesis

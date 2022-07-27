@@ -13,12 +13,15 @@ def min_bayes_risk1(hypos_i, sample_size, utility="BLEU"):
     
     Args:
 
-        hypo (Dict): dictionary with attributes
+        hypos_i (list): list of dictionary with attributes
             "tokens": torch.Tensor with len sentence_length and dtype int (token id)
             "score": torch.Tensor of size 1 float
             "attention": empty torch.Tensor
             "alignment":
             "positional_scores": torch.Tensor() len sentence_length dtype float)
+        and added attributes
+            "str": str
+            "detok_str": str
         
         sample_size (int): the size of sample/cfg.beam_size
         
@@ -31,12 +34,16 @@ def min_bayes_risk1(hypos_i, sample_size, utility="BLEU"):
     return:
         hypos with score as the expected utility
     """
-    #print (type(hypos))
-    #print ("hypos.size()",hypos.size())
-    #print ("hypos[0]", hypos[0])
-    print(hypos_i)
+    e_utility = [0.0 for _ in range(sample_size)]
+    for j in range(sample_size):
+        for k in range(sample_size):
+            e_utility[j] += (sacrebleu.corpus_bleu(hypos_i[j]["detok_str"], [hypos_i[k]["detok_str"]], tokenize = "none") 
+            * torch.exp(hypos_i[k]["score"]))
+        
+    for j in range(sample_size):
+        hypos_i[j]["expected_utility"] = e_utility[j]
     
-    return False
+    return hypos_i
 
 def min_bayes_risk(hypos, sample_size, utility="BLEU"):
     """
