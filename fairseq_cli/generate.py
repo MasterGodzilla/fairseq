@@ -292,7 +292,7 @@ def _main(cfg: DictConfig, output_file):
             for j, hypo in enumerate(hypos[i][: cfg.generation.nbest]):
                 if not cfg.common_eval.quiet:
                     score = hypo["score"] / math.log(2)  # convert to base 2
-                    # original hypothesis (after tokenization and BPE)
+                    # original hypothesis (after tokenization and BPE) 
                     if UseMBR:
                         print(
                             #"H-{}\t{}\t{}".format(sample_id, score, hypo_str),

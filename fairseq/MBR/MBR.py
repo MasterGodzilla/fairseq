@@ -3,7 +3,7 @@ import sacrebleu
 import torch
 
 
-def min_bayes_risk1(hypos_i, sample_size, utility="BLEU"):
+def min_bayes_risk1(hypos_i, sample_size, reference_func="BLEU"):
     """
     This function changes the score of the input hypos to the expected utility function, 
     so the outside ranking function can arrange it accordingly. See
@@ -25,7 +25,7 @@ def min_bayes_risk1(hypos_i, sample_size, utility="BLEU"):
         
         sample_size (int): the size of sample/cfg.beam_size
         
-        utility (str, optional): choices of 
+        reference_func (str, optional): choices of 
             "BLEU"
             "BEER"
             "METEOR"
@@ -37,16 +37,16 @@ def min_bayes_risk1(hypos_i, sample_size, utility="BLEU"):
     e_utility = [0.0 for _ in range(sample_size)]
     for j in range(sample_size):
         for k in range(sample_size):
-            bleu_score = sacrebleu.corpus_bleu([hypos_i[j]["detok_str"]], [[hypos_i[k]["detok_str"]]])
-            #print ("pairwise bleuscore", bleu_score.score)
-            #print ("weight", torch.exp(hypos_i[k]["score"]))
-            e_utility[j] += (bleu_score.score
-            * torch.exp(hypos_i[k]["score"]).item())
-            #print (e_utility[j])
+            if reference_func == "BLEU"
+                utility = sacrebleu.corpus_bleu([hypos_i[j]["detok_str"]], [[hypos_i[k]["detok_str"]]]).score
+            e_utility[j] += (utility* torch.exp(hypos_i[k]["score"]).item())
         
     for j in range(sample_size):
         hypos_i[j]["expected_utility"] = e_utility[j]
     
+    #sort expected utility in descending order
+    hypos_i.sort(key = lambda hypo: hypo.get("expected_utility"))
+
     return hypos_i
 
 def min_bayes_risk(hypos, sample_size, utility="BLEU"):
