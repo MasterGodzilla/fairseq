@@ -36,16 +36,29 @@ def min_bayes_risk1(hypos_i, sample_size, reference_func="BLEU"):
     return:
         hypos with score as the expected utility
     """
-    #Optimization: since bleu(j,j) is 100 and bleu (j,k) = bleu (k,j), we save half calculations by symmetry
+    #Optimization idea 1: since bleu(j,j) is 100 and bleu (j,k) = bleu (k,j), we save half calculations by symmetry
+    #Optimization idea 2: since most hypos are equivalent, only check bleu on distinct hypos
+    e = [j for j in range(sample_size)]
+    for j in range(1,sample_size):
+        if hypos_i[j]["detok_str"] == hypos_i[j-1]["detok_str"]: #same as previous sentence
+            e[j] = e[j-1]
+    
+    utility_dict = {}
+    
     bleu_time = 0
     for j in range(sample_size):
         hypos_i[j]["expected_utility"] = 0
         for k in range(sample_size):
-            if reference_func == "BLEU":
-                tic = time()
-                utility = sacrebleu.corpus_bleu([hypos_i[j]["detok_str"]], [[hypos_i[k]["detok_str"]]]).score
-                bleu_time += time()-tic
-            hypos_i[j]["expected_utility"] += (utility * torch.exp(hypos_i[k]["score"]).item())
+            if not utility_dict.has_key((e[j],e[k])):
+                if reference_func == "BLEU":
+                    if e[j] == e[k]:
+                        utility_dict[(e[j],e[k])] = 100.0
+                    else: 
+                        tic = time()
+                        utility_dict[(e[j],e[k])] = sacrebleu.corpus_bleu([hypos_i[j]["detok_str"]], [[hypos_i[k]["detok_str"]]]).score
+                        bleu_time += time()-tic
+                utility_dict[(e[k],e[j])] = utility_dict[(e[j],e[k])]
+            hypos_i[j]["expected_utility"] += (utility_dict[(e[j],e[k])] * torch.exp(hypos_i[k]["score"]).item())
     
     #sort expected utility in descending order
     hypos_i.sort(key = lambda hypo: hypo.get("expected_utility"),reverse=True)
