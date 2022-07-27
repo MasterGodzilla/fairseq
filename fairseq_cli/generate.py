@@ -292,7 +292,7 @@ def _main(cfg: DictConfig, output_file):
                     if UseMBR:
                         print(
                             #"H-{}\t{}\t{}".format(sample_id, score, hypo_str),
-                            "H-{}\t{}\t{}\t{}".format(sample_id, hypo["expected_utility"],score, hypo["str"]),
+                            "H-{}\t{}\t{}\t{}".format(sample_id, hypo["expected_utility"], score, hypo["str"]),
                             file=output_file,
                         )
                     else: 
