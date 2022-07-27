@@ -49,7 +49,7 @@ def min_bayes_risk1(hypos_i, sample_size, reference_func="BLEU"):
     for j in range(sample_size):
         hypos_i[j]["expected_utility"] = 0
         for k in range(sample_size):
-            if not utility_dict.has_key((e[j],e[k])):
+            if not utility_dict.__contains__((e[j],e[k])):
                 if reference_func == "BLEU":
                     if e[j] == e[k]:
                         utility_dict[(e[j],e[k])] = 100.0
