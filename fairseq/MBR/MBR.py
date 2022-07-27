@@ -46,11 +46,11 @@ def min_bayes_risk1(hypos_i, sample_size, reference_func="BLEU"):
         hypos_i[j]["expected_utility"] = e_utility[j]
     
     #sort expected utility in descending order
-    hypos_i.sort(key = lambda hypo: hypo.get("expected_utility"))
+    hypos_i.sort(key = lambda hypo: hypo.get("expected_utility"),reverse=True)
 
     return hypos_i
 
-def min_bayes_risk(hypos, sample_size, utility="BLEU",reverse=True):
+def min_bayes_risk(hypos, sample_size, utility="BLEU"):
     """
     This function changes the score of the input hypos to the expected utility function, 
     so the outside ranking function can arrange it accordingly. See
