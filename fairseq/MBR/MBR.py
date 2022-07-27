@@ -39,6 +39,7 @@ def min_bayes_risk1(hypos_i, sample_size, reference_func="BLEU"):
     #Optimization: since bleu(j,j) is 100 and bleu (j,k) = bleu (k,j), we save half calculations by symmetry
     bleu_time = 0
     for j in range(sample_size):
+        hypos_i[j]["expected_utility"] = 0
         for k in range(sample_size):
             if reference_func == "BLEU":
                 tic = time()
