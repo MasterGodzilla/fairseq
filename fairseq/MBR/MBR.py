@@ -37,7 +37,7 @@ def min_bayes_risk1(hypos_i, sample_size, utility="BLEU"):
     e_utility = [0.0 for _ in range(sample_size)]
     for j in range(sample_size):
         for k in range(sample_size):
-            bleu_score = sacrebleu.corpus_bleu(hypos_i[j]["detok_str"], [hypos_i[k]["detok_str"]], tokenize = "none")
+            bleu_score = sacrebleu.corpus_bleu([hypos_i[j]["detok_str"]], [[hypos_i[k]["detok_str"]]])
             print ("pairwise bleuscore", bleu_score.score)
             print ("weight", torch.exp(hypos_i[k]["score"]))
             e_utility[j] += (bleu_score.score
