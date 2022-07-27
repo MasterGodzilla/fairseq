@@ -1,3 +1,4 @@
+from pickle import TRUE
 from typing import List
 import sacrebleu
 import torch
@@ -49,7 +50,7 @@ def min_bayes_risk1(hypos_i, sample_size, reference_func="BLEU"):
 
     return hypos_i
 
-def min_bayes_risk(hypos, sample_size, utility="BLEU"):
+def min_bayes_risk(hypos, sample_size, utility="BLEU",reverse=True):
     """
     This function changes the score of the input hypos to the expected utility function, 
     so the outside ranking function can arrange it accordingly. See
