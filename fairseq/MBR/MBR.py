@@ -37,7 +37,7 @@ def min_bayes_risk1(hypos_i, sample_size, reference_func="BLEU"):
     e_utility = [0.0 for _ in range(sample_size)]
     for j in range(sample_size):
         for k in range(sample_size):
-            if reference_func == "BLEU"
+            if reference_func == "BLEU":
                 utility = sacrebleu.corpus_bleu([hypos_i[j]["detok_str"]], [[hypos_i[k]["detok_str"]]]).score
             e_utility[j] += (utility* torch.exp(hypos_i[k]["score"]).item())
         
