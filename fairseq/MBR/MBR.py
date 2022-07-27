@@ -3,7 +3,7 @@ import sacrebleu
 import torch
 
 
-def min_bayes_risk1(hypos_i, sample_size, utility="BLEU"):
+def min_bayes_risk1(hypo, hypo_tokens, hypo_str, detok_hypo_str, sample_size, utility="BLEU"):
     """
     This function changes the score of the input hypos to the expected utility function, 
     so the outside ranking function can arrange it accordingly. See
@@ -12,8 +12,7 @@ def min_bayes_risk1(hypos_i, sample_size, utility="BLEU"):
         https://arxiv.org/pdf/2108.04718.pdf
     
     Args:
-
-        hypo (Dict): dictionary with attributes
+        hypos (list(size batch_size) of list (size beam_size) of Dict with attributes
             "tokens": torch.Tensor with len sentence_length and dtype int (token id)
             "score": torch.Tensor of size 1 float
             "attention": empty torch.Tensor
@@ -21,7 +20,6 @@ def min_bayes_risk1(hypos_i, sample_size, utility="BLEU"):
             "positional_scores": torch.Tensor() len sentence_length dtype float)
         
         sample_size (int): the size of sample/cfg.beam_size
-        
         utility (str, optional): choices of 
             "BLEU"
             "BEER"
@@ -34,7 +32,11 @@ def min_bayes_risk1(hypos_i, sample_size, utility="BLEU"):
     #print (type(hypos))
     #print ("hypos.size()",hypos.size())
     #print ("hypos[0]", hypos[0])
-    print(hypos_i)
+
+    print ("hypo:", hypo)
+    print ("hypo_tokens", hypo_tokens)
+    print ("hypo_str", hypo_str)
+    print ("detok_hypo_str", detok_hypo_str)
     
     return False
 
