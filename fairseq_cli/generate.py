@@ -261,7 +261,6 @@ def _main(cfg: DictConfig, output_file):
                     print("S-{}\t{}".format(sample_id, src_str), file=output_file)
                 if has_target:
                     print("T-{}\t{}".format(sample_id, target_str), file=output_file)
-
             # Process top predictions
             for j, hypo in enumerate(hypos[i][: cfg.generation.nbest]):
                 hypo_tokens, hypo_str, alignment = utils.post_process_prediction(
@@ -274,21 +273,31 @@ def _main(cfg: DictConfig, output_file):
                     extra_symbols_to_ignore=get_symbols_to_strip_from_output(generator),
                 )
                 detok_hypo_str = decode_fn(hypo_str)
-                #######################################
-                UseMBR = True
-                if UseMBR: 
-                    hypo = min_bayes_risk1(hypo, hypo_tokens, hypo_str, detok_hypo_str, alignment, cfg.generation.beam)
-                #####################################
+                ##########
+                hypos[i][j]["tokens"] = hypo_tokens
+                hypos[i][j]["str"] = hypo_str
+                hypos[i][j]["alignment"] = alignment
+                hypos[i][j]["detok_str"] = detok_hypo_str
+                #########
+
+            #######################################
+            UseMBR = True
+            if UseMBR: 
+                hypo = min_bayes_risk1(hypos[i],cfg.generation.beam)
+            #####################################
+            for j, hypo in enumerate(hypos[i][: cfg.generation.nbest]):
                 if not cfg.common_eval.quiet:
                     score = hypo["score"] / math.log(2)  # convert to base 2
                     # original hypothesis (after tokenization and BPE)
                     print(
-                        "H-{}\t{}\t{}".format(sample_id, score, hypo_str),
+                        #"H-{}\t{}\t{}".format(sample_id, score, hypo_str),
+                        "H-{}\t{}\t{}".format(sample_id, score, hypo["str"]),
                         file=output_file,
                     )
                     # detokenized hypothesis
                     print(
-                        "D-{}\t{}\t{}".format(sample_id, score, detok_hypo_str),
+                        #"D-{}\t{}\t{}".format(sample_id, score, detok_hypo_str),
+                        "D-{}\t{}\t{}".format(sample_id, score, hypo["detok_str"]),
                         file=output_file,
                     )
                     print(
@@ -314,7 +323,8 @@ def _main(cfg: DictConfig, output_file):
                                 " ".join(
                                     [
                                         "{}-{}".format(src_idx, tgt_idx)
-                                        for src_idx, tgt_idx in alignment
+                                        #for src_idx, tgt_idx in alignment
+                                        for src_idx, tgt_idx in hypo["alignment"]
                                     ]
                                 ),
                             ),
@@ -325,7 +335,8 @@ def _main(cfg: DictConfig, output_file):
                             "A-{}\t{}".format(
                                 sample_id,
                                 " ".join(
-                                    [",".join(src_probs) for src_probs in alignment]
+                                    #[",".join(src_probs) for src_probs in alignment]
+                                    [",".join(src_probs) for src_probs in hypo["alignment"]]
                                 ),
                             ),
                             file=output_file,
@@ -363,12 +374,15 @@ def _main(cfg: DictConfig, output_file):
                             target_str, add_if_not_exist=True
                         )
                         hypo_tokens = tgt_dict.encode_line(
-                            detok_hypo_str, add_if_not_exist=True
+                            #detok_hypo_str, add_if_not_exist=True
+                            hypo["detok_str"], add_if_not_exist=True
                         )
                     if hasattr(scorer, "add_string"):
-                        scorer.add_string(target_str, detok_hypo_str)
+                        #scorer.add_string(target_str, detok_hypo_str)
+                        scorer.add_string(target_str, hypo["detok_str"])
                     else:
-                        scorer.add(target_tokens, hypo_tokens)
+                        #scorer.add(target_tokens, hypo_tokens)
+                        scorer.add(target_tokens, hypo["token"])
 
         wps_meter.update(num_generated_tokens)
         progress.log({"wps": round(wps_meter.avg)})
