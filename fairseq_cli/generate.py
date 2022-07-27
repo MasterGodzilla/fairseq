@@ -382,7 +382,7 @@ def _main(cfg: DictConfig, output_file):
                         scorer.add_string(target_str, hypo["detok_str"])
                     else:
                         #scorer.add(target_tokens, hypo_tokens)
-                        scorer.add(target_tokens, hypo["token"])
+                        scorer.add(target_tokens, hypo["tokens"])
 
         wps_meter.update(num_generated_tokens)
         progress.log({"wps": round(wps_meter.avg)})
