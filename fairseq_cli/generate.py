@@ -289,11 +289,18 @@ def _main(cfg: DictConfig, output_file):
                 if not cfg.common_eval.quiet:
                     score = hypo["score"] / math.log(2)  # convert to base 2
                     # original hypothesis (after tokenization and BPE)
-                    print(
-                        #"H-{}\t{}\t{}".format(sample_id, score, hypo_str),
-                        "H-{}\t{}\t{}\t{}".format(sample_id, hypo["expected_utility"],score, hypo["str"]),
-                        file=output_file,
-                    )
+                    if UseMBR:
+                        print(
+                            #"H-{}\t{}\t{}".format(sample_id, score, hypo_str),
+                            "H-{}\t{}\t{}\t{}".format(sample_id, hypo["expected_utility"],score, hypo["str"]),
+                            file=output_file,
+                        )
+                    else: 
+                        print(
+                            #"H-{}\t{}\t{}".format(sample_id, score, hypo_str),
+                            "H-{}\t{}\t{}".format(sample_id, score, hypo["str"]),
+                            file=output_file,
+                        )
                     # detokenized hypothesis
                     print(
                         #"D-{}\t{}\t{}".format(sample_id, score, detok_hypo_str),
