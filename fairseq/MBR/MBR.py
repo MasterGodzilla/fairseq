@@ -59,7 +59,7 @@ def min_bayes_risk(hypos_i, sample_size, reference_func="BLEU"):
                         utility_dict[(e[j],e[k])] = sacrebleu.corpus_bleu([hypos_i[j]["detok_str"]], [[hypos_i[k]["detok_str"]]]).score
                         bleu_time += time()-tic
                 utility_dict[(e[k],e[j])] = utility_dict[(e[j],e[k])]
-            hypos_i[j]["expected_utility"] += (utility_dict[(e[j],e[k])] * torch.exp(hypos_i[k]["score"]).item())
+            hypos_i[j]["expected_utility"] += utility_dict[(e[j],e[k])] / sample_size
     
     #sort expected utility in descending order
     hypos_i.sort(key = lambda hypo: hypo.get("expected_utility"),reverse=True)
