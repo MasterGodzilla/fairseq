@@ -26,7 +26,7 @@ from fairseq.logging import progress_bar
 from fairseq.logging.meters import StopwatchMeter, TimeMeter
 
 #Added Code
-from fairseq.MBR.MBR import min_bayes_risk1
+from fairseq.MBR.MBR import min_bayes_risk
 
 
 def main(cfg: DictConfig):
@@ -284,10 +284,7 @@ def _main(cfg: DictConfig, output_file):
             #######################################
             UseMBR = True
             if UseMBR: 
-                #tic = time()
-                hypos[i] = min_bayes_risk1(hypos[i],cfg.generation.beam)
-                #toc = time()
-                #print ("MBR time", toc - tic)
+                hypos[i] = min_bayes_risk(hypos[i],cfg.generation.beam)
             #####################################
             for j, hypo in enumerate(hypos[i][: cfg.generation.nbest]):
                 if not cfg.common_eval.quiet:
