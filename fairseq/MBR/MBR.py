@@ -38,10 +38,11 @@ def min_bayes_risk1(hypos_i, sample_size, reference_func="BLEU"):
     """
     #Optimization idea 1: since bleu(j,j) is 100 and bleu (j,k) = bleu (k,j), we save half calculations by symmetry
     #Optimization idea 2: since most hypos are equivalent, only check bleu on distinct hypos
-    e = [j for j in range(sample_size)]
+
+    e = [j for j in range(sample_size)] #e[j] = k means hypothesis j is the same as hypothesis k 
     for j in range(1,sample_size):
         if hypos_i[j]["detok_str"] == hypos_i[j-1]["detok_str"]: #same as previous sentence
-            e[j] = e[j-1]
+            e[j] = e[j-1] 
     
     utility_dict = {}
     
@@ -52,7 +53,7 @@ def min_bayes_risk1(hypos_i, sample_size, reference_func="BLEU"):
             if not utility_dict.__contains__((e[j],e[k])):
                 if reference_func == "BLEU":
                     if e[j] == e[k]:
-                        utility_dict[(e[j],e[k])] = 100.0
+                        utility_dict[(e[j],e[k])] = 100.0 #the same sentence gives 100.0 in BLEU score
                     else: 
                         tic = time()
                         utility_dict[(e[j],e[k])] = sacrebleu.corpus_bleu([hypos_i[j]["detok_str"]], [[hypos_i[k]["detok_str"]]]).score
@@ -62,5 +63,5 @@ def min_bayes_risk1(hypos_i, sample_size, reference_func="BLEU"):
     
     #sort expected utility in descending order
     hypos_i.sort(key = lambda hypo: hypo.get("expected_utility"),reverse=True)
-    #print ("bleu time:", bleu_time)
+    
     return hypos_i
