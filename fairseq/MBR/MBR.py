@@ -62,5 +62,5 @@ def min_bayes_risk1(hypos_i, sample_size, reference_func="BLEU"):
     
     #sort expected utility in descending order
     hypos_i.sort(key = lambda hypo: hypo.get("expected_utility"),reverse=True)
-    print ("bleu time:", bleu_time)
+    #print ("bleu time:", bleu_time)
     return hypos_i

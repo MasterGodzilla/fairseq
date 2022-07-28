@@ -284,10 +284,10 @@ def _main(cfg: DictConfig, output_file):
             #######################################
             UseMBR = True
             if UseMBR: 
-                tic = time()
+                #tic = time()
                 hypos[i] = min_bayes_risk1(hypos[i],cfg.generation.beam)
-                toc = time()
-                print ("MBR time", toc - tic)
+                #toc = time()
+                #print ("MBR time", toc - tic)
             #####################################
             for j, hypo in enumerate(hypos[i][: cfg.generation.nbest]):
                 if not cfg.common_eval.quiet:
