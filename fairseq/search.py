@@ -15,6 +15,9 @@ from fairseq.token_generation_constraints import (
 )
 from torch import Tensor
 
+###
+from fairseq.gumbel import gumbel_like, gumbel_with_maximum
+
 
 class Search(nn.Module):
     def __init__(self, tgt_dict):
@@ -104,6 +107,7 @@ class BeamSearch(Search):
     def __init__(self, tgt_dict):
         super().__init__(tgt_dict)
         self.constraint_states = None
+        self.stochastic = True
 
     @torch.jit.export
     def step(
@@ -120,6 +124,10 @@ class BeamSearch(Search):
             # at the first step all hypotheses are equally likely, so use
             # only the first beam
             lprobs = lprobs[:, ::beam_size, :].contiguous()
+
+            if self.stochastic: 
+                cand_scores = gumbel_like()
+
         else:
             # make probs contain cumulative scores for each hypothesis
             assert scores is not None
