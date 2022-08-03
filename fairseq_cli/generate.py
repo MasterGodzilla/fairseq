@@ -282,7 +282,7 @@ def _main(cfg: DictConfig, output_file):
                 #########
 
             #######################################
-            UseMBR = True
+            UseMBR = False
             if UseMBR: 
                 hypos[i] = min_bayes_risk(hypos[i],cfg.generation.beam)
             #####################################
