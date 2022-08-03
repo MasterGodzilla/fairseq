@@ -332,6 +332,12 @@ class SequenceGenerator(nn.Module):
         tokens[:, 0] = self.eos if bos_token is None else bos_token
         attn: Optional[Tensor] = None
 
+        ############
+        gumbel_scores = (
+            torch.zeros(bsz * beam_size, max_len + 1).to(src_tokens).float()
+        ) 
+        #########
+
         # A list that indicates candidates that should be ignored.
         # For example, suppose we're sampling and have already finalized 2/5
         # samples. Then cands_to_ignore would mark 2 positions as being ignored,
@@ -440,6 +446,9 @@ class SequenceGenerator(nn.Module):
                 attn[:, :, step + 1].copy_(avg_attn_scores)
 
             scores = scores.type_as(lprobs)
+            ########
+            gumbel_scores = scores.type_as(lprobs)
+            ###########
             eos_bbsz_idx = torch.empty(0).to(
                 tokens
             )  # indices of hypothesis ending with eos (finished sentences)
@@ -483,10 +492,13 @@ class SequenceGenerator(nn.Module):
 
 
             # Shape: (batch, cand_size)
-            cand_scores, cand_indices, cand_beams = self.search.step(
+            cand_scores, cand_gumbel_scores, cand_indices, cand_beams,  = self.search.step(
                 step,
                 lprobs.view(bsz, -1, self.vocab_size),
                 scores.view(bsz, beam_size, -1)[:, :, :step],
+                ########
+                gumbel_scores.view(bsz, beam_size, -1)[:, :, :step],
+                ############
                 tokens[:, : step + 1],
                 original_batch_idxs,
             )
@@ -567,6 +579,9 @@ class SequenceGenerator(nn.Module):
                 cands_to_ignore = cands_to_ignore[batch_idxs]
 
                 scores = scores.view(bsz, -1)[batch_idxs].view(new_bsz * beam_size, -1)
+                ##############
+                gumbel_scores = gumbel_scores.view(bsz, -1)[batch_idxs].view(new_bsz * beam_size, -1)
+                #############
                 tokens = tokens.view(bsz, -1)[batch_idxs].view(new_bsz * beam_size, -1)
                 if attn is not None:
                     attn = attn.view(bsz, -1)[batch_idxs].view(
@@ -626,9 +641,19 @@ class SequenceGenerator(nn.Module):
                 scores[:, :step] = torch.index_select(
                     scores[:, :step], dim=0, index=active_bbsz_idx
                 )
+                ##########
+                gumbel_scores[:, :step] = torch.index_select(
+                    gumbel_scores[:, :step], dim=0, index=active_bbsz_idx
+                )
+                #########
             scores.view(bsz, beam_size, -1)[:, :, step] = torch.gather(
                 cand_scores, dim=1, index=active_hypos
             )
+            #############
+            gumbel_scores.view(bsz, beam_size, -1)[:, :, step] = torch.gather(
+                cand_gumbel_scores, dim=1, index=active_hypos
+            )
+            ##################
 
             # Update constraints based on which candidates were selected for the next beam
             self.search.update_constraints(active_hypos)
