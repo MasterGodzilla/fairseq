@@ -126,24 +126,35 @@ class BeamSearch(Search):
             lprobs = lprobs[:, ::beam_size, :].contiguous()
 
             if self.stochastic: 
-                cand_scores = gumbel_like()
+                cand_scores = gumbel_like(lprobs) + lprobs
+            else:
+                cand_scores = lprobs
 
         else:
             # make probs contain cumulative scores for each hypothesis
             assert scores is not None
             lprobs = lprobs + scores[:, :, step - 1].unsqueeze(-1)
 
+            if self.stochastic:
+                cand_scores, _ = gumbel_with_maximum(lprobs, scores[:, :, step-1], -1)
+            else: 
+                cand_scores = lprobs
+
         top_prediction = torch.topk(
-            lprobs.view(bsz, -1),
+            cand_scores.view(bsz, -1),
             k=min(
                 # Take the best 2 x beam_size predictions. We'll choose the first
                 # beam_size of these which don't predict eos to continue with.
                 beam_size * 2,
-                lprobs.view(bsz, -1).size(1) - 1,  # -1 so we never select pad
+                cand_scores.view(bsz, -1).size(1) - 1,  # -1 so we never select pad
             ),
         )
         scores_buf = top_prediction[0]
         indices_buf = top_prediction[1]
+
+        if self.stochastic:
+            scores_buf = torch.gather(lprobs.vew(bsz, -1), -1, indices_buf)
+
         # Project back into relative indices and beams
         beams_buf = torch.div(indices_buf, vocab_size, rounding_mode="trunc")
         indices_buf = indices_buf.fmod(vocab_size)
