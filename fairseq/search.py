@@ -156,6 +156,11 @@ class BeamSearch(Search):
 
         if self.stochastic:
             scores_buf = torch.gather(lprobs.view(bsz, -1), -1, indices_buf)
+            try: 
+                assert torch.all(scores_buf < 0.01)
+            except AssertionError as msg:
+                print (msg)
+                print ("scores_buf:", scores_buf)
         else: 
             scores_buf = gumbel_scores_buf
 
