@@ -153,7 +153,7 @@ class BeamSearch(Search):
         indices_buf = top_prediction[1]
 
         if self.stochastic:
-            scores_buf = torch.gather(lprobs.vew(bsz, -1), -1, indices_buf)
+            scores_buf = torch.gather(lprobs.view(bsz, -1), -1, indices_buf)
 
         # Project back into relative indices and beams
         beams_buf = torch.div(indices_buf, vocab_size, rounding_mode="trunc")
