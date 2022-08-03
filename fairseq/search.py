@@ -115,6 +115,7 @@ class BeamSearch(Search):
         step: int,
         lprobs,
         scores: Optional[Tensor],
+        gumbel_scores: Optional[Tensor],
         prev_output_tokens: Optional[Tensor] = None,
         original_batch_idxs: Optional[Tensor] = None,
     ):
@@ -126,41 +127,44 @@ class BeamSearch(Search):
             lprobs = lprobs[:, ::beam_size, :].contiguous()
 
             if self.stochastic: 
-                cand_scores = gumbel_like(lprobs) + lprobs
+                cand_gumbel_scores = gumbel_like(lprobs) + lprobs
             else:
-                cand_scores = lprobs
+                cand_gumbel_scores = lprobs
 
         else:
             # make probs contain cumulative scores for each hypothesis
             assert scores is not None
+            assert gumbel_scores is not None
             lprobs = lprobs + scores[:, :, step - 1].unsqueeze(-1)
 
             if self.stochastic:
-                cand_scores, _ = gumbel_with_maximum(lprobs, scores[:, :, step-1], -1)
+                cand_gumbel_scores, _ = gumbel_with_maximum(lprobs, gumbel_scores[:, :, step-1], -1)
             else: 
-                cand_scores = lprobs
+                cand_gumbel_scores = lprobs
 
         top_prediction = torch.topk(
-            cand_scores.view(bsz, -1),
+            cand_gumbel_scores.view(bsz, -1),
             k=min(
                 # Take the best 2 x beam_size predictions. We'll choose the first
                 # beam_size of these which don't predict eos to continue with.
                 beam_size * 2,
-                cand_scores.view(bsz, -1).size(1) - 1,  # -1 so we never select pad
+                cand_gumbel_scores.view(bsz, -1).size(1) - 1,  # -1 so we never select pad
             ),
         )
-        scores_buf = top_prediction[0]
+        gumbel_scores_buf = top_prediction[0]
         indices_buf = top_prediction[1]
 
-        #if self.stochastic:
-        #    scores_buf = torch.gather(lprobs.view(bsz, -1), -1, indices_buf)
+        if self.stochastic:
+            scores_buf = torch.gather(lprobs.view(bsz, -1), -1, indices_buf)
+        else: 
+            scores_buf = gumbel_scores_buf
 
         # Project back into relative indices and beams
         beams_buf = torch.div(indices_buf, vocab_size, rounding_mode="trunc")
         indices_buf = indices_buf.fmod(vocab_size)
 
         # At this point, beams_buf and indices_buf are single-dim and contain relative indices
-        return scores_buf, indices_buf, beams_buf
+        return scores_buf, gumbel_scores_buf, indices_buf, beams_buf
 
 
 class PrefixConstrainedBeamSearch(Search):

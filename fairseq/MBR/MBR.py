@@ -5,7 +5,7 @@ import torch
 from time import time
 
 
-def min_bayes_risk(hypos_i, sample_size, reference_func="BLEU"):
+def min_bayes_risk(hypos_i, sample_size, reference_func="BLEU", sampling_without_replacement = False):
     """
     This function changes the score of the input hypos to the expected utility function, 
     so the outside ranking function can arrange it accordingly. See
@@ -59,7 +59,10 @@ def min_bayes_risk(hypos_i, sample_size, reference_func="BLEU"):
                         utility_dict[(e[j],e[k])] = sacrebleu.corpus_bleu([hypos_i[j]["detok_str"]], [[hypos_i[k]["detok_str"]]]).score
                         bleu_time += time()-tic
                 utility_dict[(e[k],e[j])] = utility_dict[(e[j],e[k])]
-            hypos_i[j]["expected_utility"] += utility_dict[(e[j],e[k])] / sample_size
+            if sampling_without_replacement:
+                hypos_i[j]["expected_utility"] += utility_dict[(e[j],e[k])] / sample_size
+            else:
+                hypos_i[j]["expected_utility"] += utility_dict[(e[j],e[k])] / sample_size
     
     #sort expected utility in descending order
     hypos_i.sort(key = lambda hypo: hypo.get("expected_utility"),reverse=True)
