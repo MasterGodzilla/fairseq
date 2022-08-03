@@ -107,7 +107,7 @@ class BeamSearch(Search):
     def __init__(self, tgt_dict):
         super().__init__(tgt_dict)
         self.constraint_states = None
-        self.stochastic = False
+        self.stochastic = True
 
     @torch.jit.export
     def step(
