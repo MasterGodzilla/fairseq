@@ -163,6 +163,7 @@ class BeamSearch(Search):
         try: 
             assert torch.all(scores_buf < 0.01)
         except AssertionError as msg:
+            print ("step:", step)
             print (msg)
             error_index = (scores_buf<0.01).nonzero()
             print ("error_index:", error_index)
