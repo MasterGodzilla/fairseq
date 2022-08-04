@@ -3,6 +3,7 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
+from logging import raiseExceptions
 import math
 from typing import List, Optional
 
@@ -156,13 +157,19 @@ class BeamSearch(Search):
 
         if self.stochastic:
             scores_buf = torch.gather(lprobs.view(bsz, -1), -1, indices_buf)
-            try: 
-                assert torch.all(scores_buf < 0.01)
-            except AssertionError as msg:
-                print (msg)
-                print ("scores_buf:", scores_buf)
         else: 
             scores_buf = gumbel_scores_buf
+        
+        try: 
+            assert torch.all(scores_buf < 0.01)
+        except AssertionError as msg:
+            print (msg)
+            error_index = (scores_buf<0.01).nonzero()
+            print ("error_index:", error_index)
+            print ("scores:", scores_buf[error_index])
+            print ("lprob:", lprobs[error_index[0]])
+        
+        assert (torch.all(scores_buf < 0.01))
 
         # Project back into relative indices and beams
         beams_buf = torch.div(indices_buf, vocab_size, rounding_mode="trunc")
