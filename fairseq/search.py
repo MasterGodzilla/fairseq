@@ -166,7 +166,7 @@ class BeamSearch(Search):
             print (msg)
             error_index = (scores_buf<0.01).nonzero()
             print ("error_index:", error_index)
-            print ("scores:", scores_buf[error_index])
+            print ("scores:", scores_buf)
             print ("lprob:", lprobs[error_index[0]])
         
         assert (torch.all(scores_buf < 0.01))
