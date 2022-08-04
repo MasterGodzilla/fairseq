@@ -136,6 +136,18 @@ class BeamSearch(Search):
             # make probs contain cumulative scores for each hypothesis
             assert scores is not None
             assert gumbel_scores is not None
+
+            try: 
+                assert torch.all(lprobs < 0.01)
+                assert torch.all(scores < 0.01)
+            except AssertionError as msg:
+                print ("step:", step)
+                print (msg)
+                error_index = (scores<0.01).nonzero()
+                print ("error_index:", error_index)
+                print ("scores:", scores)
+                print ("lprob topk :", torch.topk(scores, k = 5))
+
             lprobs = lprobs + scores[:, :, step - 1].unsqueeze(-1)
 
             if self.stochastic:
@@ -159,16 +171,6 @@ class BeamSearch(Search):
             scores_buf = torch.gather(lprobs.view(bsz, -1), -1, indices_buf)
         else: 
             scores_buf = gumbel_scores_buf
-        
-        try: 
-            assert torch.all(scores_buf < 0.01)
-        except AssertionError as msg:
-            print ("step:", step)
-            print (msg)
-            error_index = (scores_buf<0.01).nonzero()
-            print ("error_index:", error_index)
-            print ("scores:", scores_buf)
-            print ("lprob topk :", torch.topk(lprobs, k = 5))
         
         assert (torch.all(scores_buf < 0.01))
 
