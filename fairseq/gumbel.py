@@ -37,7 +37,7 @@ def gumbel_with_maximum(phi, T, dim=-1):
     if CHECK_VALIDITY:
         g_inv = _shift_gumbel_maximum(g, Z, dim)
         try: 
-            assert (((g_phi - g_inv) < 1e-3) | (g_phi == g_inv)).all()
+            assert (((g_phi - g_inv) < 1e-3) | (g_phi == g_inv) | (g_phi.isinf())).all()
         except AssertionError as msg:
             print (msg)
             print ("phi:", phi)
