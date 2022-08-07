@@ -40,9 +40,9 @@ def gumbel_with_maximum(phi, T, dim=-1):
             assert (((g_phi - g_inv) < 1e-3) | (g_phi == g_inv) | (g_phi.isinf())).all()
         except AssertionError as msg:
             print (msg)
-            print ("phi:", phi)
-            print ("g_phi:", g_phi)
-            print ("g_inv", g_inv)
+            print ("phi:", phi[phi.nonzero()])
+            print ("g_phi:", g_phi[g_phi.nonzero()])
+            print ("g_inv", g_inv[g_inv.nonzero()])
         assert (((g_phi - g_inv) < 1e-3) | (g_phi == g_inv) | (g_phi.isinf())).all()
     return g, argmax
 
