@@ -41,8 +41,8 @@ def gumbel_with_maximum(phi, T, dim=-1):
         except AssertionError as msg:
             print (msg)
             error_index = torch.logical_not(((g_phi - g_inv) < 1e-3) | (g_phi == g_inv) | (g_phi.isinf())).nonzero()
-            print ("error index:", )
-            print ("phi:", phi[error_index])
+            print ("error index:", error_index)
+            #print ("phi:", phi[error_index])
             print ("g_phi:", g_phi[error_index])
             print ("g_inv", g_inv[error_index])
         assert (((g_phi - g_inv) < 1e-3) | (g_phi == g_inv) | (g_phi.isinf())).all()
