@@ -43,7 +43,7 @@ def gumbel_with_maximum(phi, T, dim=-1):
             print ("phi:", phi)
             print ("g_phi:", g_phi)
             print ("g_inv", g_inv)
-        assert (((g_phi - g_inv) < 1e-3) | (g_phi == g_inv)).all()
+        assert (((g_phi - g_inv) < 1e-3) | (g_phi == g_inv) | (g_phi.isinf())).all()
     return g, argmax
 
 
