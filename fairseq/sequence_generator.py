@@ -447,7 +447,7 @@ class SequenceGenerator(nn.Module):
 
             scores = scores.type_as(lprobs)
             ########
-            gumbel_scores = scores.type_as(lprobs)
+            gumbel_scores = gumbel_scores.type_as(lprobs)
             ###########
             eos_bbsz_idx = torch.empty(0).to(
                 tokens

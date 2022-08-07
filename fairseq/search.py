@@ -146,7 +146,7 @@ class BeamSearch(Search):
                 error_index = (scores<0.01).nonzero()
                 print ("error_index:", error_index)
                 print ("scores:", scores)
-                print ("lprob topk :", torch.topk(scores, k = 5))
+                print ("lprob topk :", torch.topk(lprobs, k = 5))
 
             lprobs = lprobs + scores[:, :, step - 1].unsqueeze(-1)
 
